@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>単語の存在チェック</title>
+</head>
+<body>
+    <h1>単語の存在チェック</h1>
+    <input type="text" id="wordInput" placeholder="単語を入力">
+    <button onclick="checkWord()">チェックする</button>
+    <div id="result"></div>
+
+    <script>
+        async function checkWord() {
+            let word = document.getElementById('wordInput').value.trim().toLowerCase();
+
+            if (word === '') {
+                alert('単語を入力してください。');
+                return;
+            }
+
+            // ここでは単純に、4文字以上の英単語をチェックする例を示します
+            if (word.length < 4) {
+                alert('単語は4文字以上で入力してください。');
+                return;
+            }
+
+            // 仮の単語リスト（実際の辞書データではありません）
+            const wordList = ['apple', 'banana', 'orange', 'pear', 'grape', 'kiwi', 'melon'];
+
+            if (wordList.includes(word)) {
+                document.getElementById('result').textContent = `${word} は存在します！`;
+            } else {
+                document.getElementById('result').textContent = `${word} は存在しません。`;
+            }
+        }
+    </script>
+</body>
+</html>

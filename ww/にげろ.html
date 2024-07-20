@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🍍 vs 🦌 ゲーム</title>
+<style>
+    body {
+        background-color: #f0f0f0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+    }
+
+    #pineapple {
+        font-size: 48px;
+        color: yellow;
+    }
+
+    #deer {
+        position: absolute;
+        top: 50px;
+        left: 50px;
+        font-size: 48px;
+        color: brown;
+    }
+
+    #coordinates {
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        font-size: 16px;
+    }
+</style>
+</head>
+<body>
+    <div id="pineapple">🍍</div>
+    <div id="deer">🦌</div>
+    <div id="coordinates">🦌 X: <span id="deerX"></span> Y: <span id="deerY"></span></div>
+
+    <script>
+        const pineapple = document.getElementById('pineapple');
+        const deer = document.getElementById('deer');
+        const deerXDisplay = document.getElementById('deerX');
+        const deerYDisplay = document.getElementById('deerY');
+
+        // 初期位置
+        let pineappleX = 0;
+        let pineappleY = 0;
+        let deerX = window.innerWidth - 100; // 右上に配置
+        let deerY = 50;
+
+        // 🍍が🦌の座標に向かって移動する関数
+        function movePineapple() {
+            // Calculate direction vector from 🍍 to 🦌
+            let dx = deerX - pineappleX;
+            let dy = deerY - pineappleY;
+            
+            // Normalize direction vector
+            let length = Math.sqrt(dx * dx + dy * dy);
+            dx /= length;
+            dy /= length;
+            
+            // Move 🍍 towards 🦌
+            pineappleX += dx * 3; // Adjust speed as needed
+            pineappleY += dy * 3; // Adjust speed as needed
+            
+            // Update 🍍 position
+            pineapple.style.transform = `translate(${pineappleX}px, ${pineappleY}px)`;
+
+            // 🍍の位置を画面内に制限する
+            pineappleX = clamp(pineappleX, 0, window.innerWidth - pineapple.clientWidth);
+            pineappleY = clamp(pineappleY, 0, window.innerHeight - pineapple.clientHeight);
+
+            // 🦌との当たり判定
+            if (collision(pineappleX, pineappleY, deerX, deerY)) {
+                alert('🍍が🦌に捕まってしまった！');
+                resetGame();
+            } else {
+                requestAnimationFrame(movePineapple);
+            }
+        }
+
+        // 🦌が逃げる関数
+        function fleeDeer() {
+            // Calculate direction vector from 🦌 to random position
+            let targetX = getRandomInt(0, window.innerWidth);
+            let targetY = getRandomInt(0, window.innerHeight);
+            let dx = targetX - deerX;
+            let dy = targetY - deerY;
+            
+            // Normalize direction vector
+            let length = Math.sqrt(dx * dx + dy * dy);
+            dx /= length;
+            dy /= length;
+            
+            // Move 🦌 away from the target position
+            deerX += dx * 2; // Adjust speed as needed
+            deerY += dy * 2; // Adjust speed as needed
+            
+            // Update 🦌 position
+            deer.style.transform = `translate(${deerX}px, ${deerY}px)`;
+            deerXDisplay.textContent = deerX.toFixed(2);
+            deerYDisplay.textContent = deerY.toFixed(2);
+
+            // 🦌の位置を画面内に制限する
+            deerX = clamp(deerX, 0, window.innerWidth - deer.clientWidth);
+            deerY = clamp(deerY, 0, window.innerHeight - deer.clientHeight);
+
+            requestAnimationFrame(fleeDeer);
+        }
+
+        // 当たり判定関数
+        function collision(x1, y1, x2, y2) {
+            const dx = x1 - x2;
+            const dy = y1 - y2;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            return distance < 50; // 半径50px以内に接触していれば当たり
+        }
+
+        // ランダム整数を生成する関数
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        // 値を指定された範囲内にクランプする関数
+        function clamp(value, min, max) {
+            return Math.min(Math.max(value, min), max);
+        }
+
+        // ゲームリセット関数
+        function resetGame() {
+            pineappleX = 0;
+            pineappleY = 0;
+            deerX = window.innerWidth - 100; // 右上に配置
+            deerY = 50;
+            pineapple.style.transform = `translate(${pineappleX}px, ${pineappleY}px)`;
+            deer.style.transform = `translate(${deerX}px, ${deerY}px)`;
+        }
+
+        // ゲーム開始
+        movePineapple();
+        fleeDeer();
+    </script>
+</body>
+</html>

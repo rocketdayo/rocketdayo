@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Block Breaker Game</title>
+    <style>
+        canvas {
+            display: inline-block;
+            margin: 10px;
+            background: #eee;
+        }
+        #controls {
+            text-align: center;
+            margin-top: 20px;
+        }
+        #level-display {
+            text-align: center;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="controls">
+        <label for="start-level">Select Initial Level:</label>
+        <select id="start-level">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+        </select>
+        <label for="brick-pattern">Select Brick Pattern:</label>
+        <select id="brick-pattern">
+            <option value="0">Pattern 1</option>
+            <option value="1">Pattern 2</option>
+            <option value="2">Pattern 3</option>
+        </select>
+        <button onclick="startGame()">Start Game</button>
+    </div>
+    <div id="level-display"></div>
+    <div id="game-container" style="text-align: center;">
+        <canvas id="humanCanvas"></canvas>
+        <canvas id="cpuCanvas"></canvas>
+    </div>
+    <script src="game.js"></script>
+</body>
+</html>

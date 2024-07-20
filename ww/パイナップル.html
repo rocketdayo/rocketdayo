@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>パイナップルクリックゲーム</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f8ff;
+        }
+        .game-container {
+            margin-top: 50px;
+        }
+        #pineapple {
+            cursor: pointer;
+            font-size: 100px;
+            transition: transform 0.2s;
+        }
+        #pineapple:hover {
+            transform: scale(1.1);
+        }
+        .button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .button:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>パイナップルクリックゲーム</h1>
+        <p>スコア: <span id="score">0</span></p>
+        <p>お金: $<span id="money">0</span></p>
+        <div id="pineapple">🍍</div>
+        <button id="upgrade" class="button">アップグレード (コスト: $<span id="upgradeCost">10</span>)</button>
+    </div>
+    <script>
+        let score = 0;
+        let money = 0;
+        let clickValue = 1;
+        let upgradeCost = 10;
+
+        function updateDisplay() {
+            document.getElementById("score").textContent = score;
+            document.getElementById("money").textContent = money;
+            document.getElementById("upgradeCost").textContent = upgradeCost;
+        }
+
+        document.getElementById("pineapple").addEventListener("click", function() {
+            score++;
+            money += clickValue;
+            updateDisplay();
+            updateButtonState();
+        });
+
+        document.getElementById("upgrade").addEventListener("click", function() {
+            if (money >= upgradeCost) {
+                money -= upgradeCost;
+                clickValue++;
+                upgradeCost = Math.floor(upgradeCost * 1.5);
+                updateDisplay();
+                updateButtonState();
+            }
+        });
+
+        function updateButtonState() {
+            document.getElementById("upgrade").disabled = money < upgradeCost;
+            document.getElementById("upgrade").innerHTML = `アップグレード (コスト: $<span id="upgradeCost">${upgradeCost}</span>)`;
+        }
+
+        setInterval(updateButtonState, 100);
+    </script>
+</body>
+</html>

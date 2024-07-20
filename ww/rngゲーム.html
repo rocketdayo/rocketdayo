@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RNGゲーム</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            height: 100vh;
+            margin: 0;
+        }
+        .game-container {
+            text-align: center;
+            margin-right: 50px;
+        }
+        .button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        #result {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+        .inventory {
+            border: 1px solid #ccc;
+            padding: 10px;
+            background-color: #ffffff;
+            width: 300px;
+            height: 400px;
+            overflow-y: auto;
+        }
+        .inventory h2 {
+            font-size: 20px;
+            margin-top: 0;
+        }
+        .inventory-item {
+            font-size: 16px;
+            margin: 5px 0;
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>RNGゲーム</h1>
+        <p>Rollボタンをクリックして、かっこいい名前を当ててください。</p>
+        <button id="rollButton" class="button">Roll</button>
+        <button id="autoRollButton" class="button">Auto Roll</button>
+        <button id="superAutoRollButton" class="button">Super Auto Roll</button>
+        <p id="result"></p>
+        <p id="rollCount">Roll回数: 0回</p>
+        <label for="password">パスワード:</label>
+        <input type="text" id="password" name="password">
+        <button id="passwordButton" class="button">Submit</button>
+    </div>
+    <div class="inventory">
+        <h2>持ち物</h2>
+        <div id="inventoryList"></div>
+    </div>
+    <script>
+        let rollCount = 0;
+        let autoRollInterval = null;
+        let superAutoRollInterval = null;
+        let passwordCorrect = false;
+
+        const names = [
+            { name: "勇者", probability: 1 / 2, count: 0 },
+            { name: "伝説", probability: 1 / 4, count: 0 },
+            { name: "神話", probability: 1 / 8, count: 0 },
+            { name: "不滅", probability: 1 / 16, count: 0 },
+            { name: "至高", probability: 1 / 32, count: 0 },
+            { name: "無敵", probability: 1 / 64, count: 0 },
+            { name: "最強", probability: 1 / 128, count: 0 },
+            { name: "超越", probability: 1 / 256, count: 0 },
+            { name: "究極", probability: 1 / 512, count: 0 },
+            { name: "絶対", probability: 1 / 1024, count: 0 },
+            { name: "無限", probability: 1 / 2048, count: 0 },
+            { name: "極限", probability: 1 / 4096, count: 0 },
+            { name: "神聖", probability: 1 / 8192, count: 0 },
+            { name: "永遠", probability: 1 / 16384, count: 0 },
+            { name: "不朽", probability: 1 / 32768, count: 0 },
+            { name: "伝説の勇者", probability: 1 / 65536, count: 0 },
+            { name: "究極の伝説", probability: 1 / 131072, count: 0 },
+            { name: "神の化身", probability: 1 / 262144, count: 0 },
+            { name: "究極の神", probability: 1 / 524288, count: 0 },
+            { name: "宇宙の支配者", probability: 1 / 1048576, count: 0 },
+            { name: "永遠の栄光", probability: 1 / 2097152, count: 0 },
+            { name: "時空を超える存在", probability: 1 / 4194304, count: 0 },
+            { name: "神話の存在", probability: 1 / 8388608, count: 0 },
+	    { name: "神々の証", probability: 1 / 16777216, count: 0 },
+	    { name: "至宝", probability: 1 / 33554432, count: 0 },
+	    { name: "至高不滅", probability: 1 / 67108864, count: 0 },
+	    { name: "不死身", probability: 1 / 134217728, count: 0 },
+	　　{ name: "無限の可能性", probability: 1 / 268435456, count: 0 },
+	　　{ name: "永遠の栄光", probability: 1 / 536870912, count: 0 },
+	　　{ name: "時空を超えた存在", probability: 1 / 1073741824, count: 0 },
+	　　{ name: "神秘の力", probability: 1 / 2147483648, count: 0 },
+	　　{ name: "不滅の精神", probability: 1 / 4294967296, count: 0 },
+	　　{ name: "至高の尊厳", probability: 1 / 8589934592, count: 0 },
+	　　{ name: "宇宙の奇跡", probability: 1 / 17179869184, count: 0 },
+	　　{ name: "無尽の可能性", probability: 1 / 34359738368, count: 0 },
+	　　{ name: "絶対の存在", probability: 1 / 68719476736, count: 0 },
+	　　{ name: "無敵の魂", probability: 1 / 137438953472, count: 0 },
+	　　{ name: "神の力", probability: 1 / 274877906944, count: 0 },
+	　　{ name: "究極の統治者", probability: 1 / 549755813888, count: 0 },
+	　　{ name: "神の加護", probability: 1 / 1099511627776, count: 0 },
+	　　{ name: "神聖なる力", probability: 1 / 2199023255552, count: 0 },
+	　　{ name: "永遠の命", probability: 1 / 4398046511104, count: 0 },
+	　　{ name: "至高の知恵", probability: 1 / 8796093022208, count: 0 },
+	　　{ name: "不滅の魂", probability: 1 / 17592186044416, count: 0 },
+	　　{ name: "無限の知識", probability: 1 / 35184372088832, count: 0 },
+	　　{ name: "絶対の支配", probability: 1 / 70368744177664, count: 0 },
+	　　{ name: "宇宙の真実", probability: 1 / 140737488355328, count: 0 },
+	　　{ name: "神々の意志", probability: 1 / 281474976710656, count: 0 },
+	　　{ name: "至高の存在", probability: 1 / 562949953421312, count: 0 },
+	　　{ name: "神秘的な力", probability: 1 / 1125899906842624, count: 0 },
+	　　{ name: "神の意志", probability: 1 / 2251799813685248, count: 0 },
+	　　{ name: "神聖なる存在", probability: 1 / 4503599627370496, count: 0 },
+	　　{ name: "永遠の煌めき", probability: 1 / 9007199254740992, count: 0 },
+	　　{ name: "至高の栄光", probability: 1 / 18014398509481984, count: 0 },
+	　　{ name: "神の栄光", probability: 1 / 36028797018963968, count: 0 }
+
+        ];
+
+        function updateInventory() {
+            const inventoryList = document.getElementById("inventoryList");
+            inventoryList.innerHTML = "";
+            names.forEach(item => {
+                const listItem = document.createElement("div");
+                listItem.className = "inventory-item";
+                listItem.textContent = `${item.name}: ${item.count}回 (${Math.round(1 / item.probability)}分の1)`;
+                inventoryList.appendChild(listItem);
+            });
+        }
+
+        document.getElementById("rollButton").addEventListener("click", roll);
+        document.getElementById("autoRollButton").addEventListener("click", toggleAutoRoll);
+        document.getElementById("superAutoRollButton").addEventListener("click", toggleSuperAutoRoll);
+        document.getElementById("passwordButton").addEventListener("click", checkPassword);
+
+        function checkPassword() {
+            const passwordInput = document.getElementById("password").value;
+            if (passwordInput === "rocket") {
+                passwordCorrect = true;
+                document.getElementById("password").disabled = true;
+                document.getElementById("passwordButton").disabled = true;
+            } else {
+                alert("パスワードが正しくありません。");
+            }
+        }
+
+        function roll() {
+            if (!passwordCorrect) {
+                alert("パスワードを入力してください。");
+                return;
+            }
+            rollCount++;
+            document.getElementById("rollCount").textContent = `Roll回数: ${rollCount}回`;
+
+            const passwordInput = document.getElementById("password").value;
+            for (const item of names) {
+                if (passwordInput === item.name) {
+                    item.count++;
+                    document.getElementById("result").textContent = `おめでとうございます！「${item.name}」を手に入れました！`;
+                    updateInventory();
+                    return;
+                }
+            }
+
+            const rolledNumber = Math.random();
+            let accumulatedProbability = 0;
+                        let resultName = "何も当たりませんでした。";
+            let probabilityText = "";
+
+            for (const item of names) {
+                accumulatedProbability += item.probability;
+                if (rolledNumber < accumulatedProbability) {
+                    resultName = `おめでとうございます！「${item.name}」を当てました！`;
+                    probabilityText = `${Math.round(1 / item.probability)}分の1の確率でした。`;
+                    item.count++;
+                    break;
+                }
+            }
+
+            document.getElementById("result").textContent = `${resultName} (${probabilityText})`;
+            updateInventory();
+        }
+
+        function toggleAutoRoll() {
+            if (autoRollInterval) {
+                clearInterval(autoRollInterval);
+                autoRollInterval = null;
+                document.getElementById("autoRollButton").textContent = "Auto Roll";
+            } else {
+                autoRollInterval = setInterval(roll, 1000);
+                document.getElementById("autoRollButton").textContent = "Stop Auto Roll";
+            }
+        }
+
+        function toggleSuperAutoRoll() {
+            if (!passwordCorrect) {
+                alert("パスワードを入力してください。");
+                return;
+            }
+            if (superAutoRollInterval) {
+                clearInterval(superAutoRollInterval);
+                superAutoRollInterval = null;
+                document.getElementById("superAutoRollButton").textContent = "Super Auto Roll";
+            } else {
+                superAutoRollInterval = setInterval(roll, 1);
+                document.getElementById("superAutoRollButton").textContent = "Stop Super Auto Roll";
+            }
+        }
+
+        updateInventory();
+    </script>
+</body>
+</html>
+
